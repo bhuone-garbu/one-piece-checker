@@ -1,0 +1,25 @@
+service: one-piece-checker
+
+frameworkVersion: '2'
+
+plugins:
+  - serverless-bundle
+  - serverless-offline-scheduler
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+
+functions:
+  checkManga:
+    handler: src/handlers/check-manga.handler
+    events:
+      # Invoke Lambda function every minute
+      - schedule:
+          rate: rate(1 minute)
+          enabled: true
+
+custom:
+  bundle:
+    sourcemaps: false
