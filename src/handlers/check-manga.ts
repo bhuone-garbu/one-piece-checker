@@ -16,7 +16,7 @@ import { sendEmail } from '../send-email';
 } */
 
 const SITE_BASE_URL = 'https://online-one-piece.com';
-const REGEX = /^One Piece, Chapter (\d+)$/gim;
+const TEXT_CONTENT_REGEX = /^One Piece, Chapter (\d+)$/gim;
 
 export const handler = async (event: ScheduledEvent, context: Context) => {
   const time = new Date();
@@ -25,23 +25,12 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
 
   // process env
   let lastKnownChapterNo = 1017;
-  const {
-    data,
-    request: { res },
-  } = await axios.get(SITE_BASE_URL);
-
-  // if (wasRedirected(res.responseUrl)) {
-  //   console.log('Got redirected... no new chapter');
-  //   return;
-  // }
-  // console.log('responseUrl: ', res.responseUrl);
+  const { data } = await axios.get(SITE_BASE_URL);
 
   const cssSelector = '#ceo_latest_comics_widget-3 > ul > li:nth-child(1)';
   const $ = cheerio.load(data);
 
-  const match = REGEX.exec($(cssSelector).text());
-
-  console.log('current latest chapter', match![1]);
+  const match = TEXT_CONTENT_REGEX.exec($(cssSelector).text());
 
   if (!match) {
     console.log('Unable to match the text with the current cssSelector');
@@ -50,6 +39,7 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
 
   const currentLatestNo = parseInt(match[1]);
 
+  // if for some reason the last known chapter lagged behind
   do {
     await sendEmail(lastKnownChapterNo + 1);
     lastKnownChapterNo++;

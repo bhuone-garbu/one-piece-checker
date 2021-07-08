@@ -1,14 +1,16 @@
-service: one-piece-checker
+service: one-piece-chapter-checker
 
 frameworkVersion: '2'
 
 plugins:
+  - serverless-dotenv-plugin
   - serverless-bundle
   - serverless-offline-scheduler
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  region: us-east-1
+  runtime: nodejs14.x
   lambdaHashingVersion: 20201221
 
 functions:
