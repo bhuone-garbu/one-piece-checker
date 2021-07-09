@@ -6,12 +6,14 @@
   "license": "MIT",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.78",
+    "@types/node": "^16.3.0",
     "serverless-bundle": "^4.3.1",
     "serverless-dotenv-plugin": "^3.9.0",
     "serverless-offline-scheduler": "^0.5.0"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.4.5",
+    "aws-sdk": "^2.942.0",
     "axios": "^0.21.1",
     "cheerio": "^1.0.0-rc.10"
   }

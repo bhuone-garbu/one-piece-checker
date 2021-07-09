@@ -1,0 +1,9 @@
+SystemManagerIAM:
+  Effect: Allow
+  Action:
+    - ssm:GetParameter
+    - ssm:PutParameter
+  Resource:
+    # TODO: create resource config that creates these
+    - arn:aws:ssm:us-east-1:988035987866:parameter/one-piece-last-known-chapter-no
+    - arn:aws:ssm:us-east-1:988035987866:parameter/send-grid-api-key

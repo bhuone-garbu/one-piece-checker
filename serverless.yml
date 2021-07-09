@@ -7,21 +7,33 @@ plugins:
   - serverless-bundle
   - serverless-offline-scheduler
 
+package:
+  individually: true
+
 provider:
   name: aws
-  region: us-east-1
+  region: ${opt:region, 'us-east-1'}
   runtime: nodejs14.x
   lambdaHashingVersion: 20201221
+  iamRoleStatements:
+    - ${file(iam/ssm-iam.yml):SystemManagerIAM}
 
 functions:
   checkManga:
-    handler: src/handlers/check-manga.handler
+    handler: src/handlers/check-manga-list.handler
     events:
-      # Invoke Lambda function every minute
+      # Invoke Lambda function every 2 days @ 18:00:00 from Mon, Wed, Fri
       - schedule:
-          rate: rate(1 minute)
-          enabled: true
+          rate: cron(0 18 ? * WED,FRI *)
+          enabled: false
+
+    environment:
+      SEND_GRID_TEMPLATE_ID: d-eeda09e5b5654add88b6550083628448
+      PARAMETER_NAME_CHAPTER_NO: one-piece-last-known-chapter-no
+      PARAMETER_NAME_SENDGRID_API_KEY: send-grid-api-key
 
 custom:
   bundle:
     sourcemaps: false
+    forceExclude:
+      - aws-sdk
