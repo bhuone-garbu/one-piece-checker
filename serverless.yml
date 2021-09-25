@@ -22,10 +22,10 @@ functions:
   checkManga:
     handler: src/handlers/check-manga-list.handler
     events:
-      # Invoke Lambda function every 2 days @ 18:00:00 from Mon, Wed, Fri
+      # Invoke Lambda function every 2 days @ 18:00:00 from Wed, Thu, Fri
       - schedule:
-          rate: cron(0 18 ? * WED,FRI *)
-          enabled: false
+          rate: cron(0 18 ? * WED,THU,FRI *)
+          enabled: true
 
     environment:
       SEND_GRID_TEMPLATE_ID: d-eeda09e5b5654add88b6550083628448

@@ -7,7 +7,7 @@ export async function isChapterNotReady(chapterNo: number) {
   );
 
   // the h2 where it will tell if the chapter is available or not
-  const cssSelector = 'div.entry-inner > div.entry-content > h2:nth-child(3)';
+  const cssSelector = 'div.entry-inner > div.entry-content > h2:nth-child(2)';
   const $ = cheerio.load(data);
 
   const h2Text = $(cssSelector).text();

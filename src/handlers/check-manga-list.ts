@@ -1,4 +1,4 @@
-import type { Context, ScheduledEvent } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 import axios from 'axios';
 import cheerio from 'cheerio';
 
@@ -9,7 +9,7 @@ import { isChapterNotReady } from '../check-chapter';
 const SITE_BASE_URL = 'https://online-one-piece.com';
 const TEXT_CONTENT_REGEX = /^One Piece, Chapter (\d+)$/gim;
 
-export const handler = async (event: ScheduledEvent, context: Context) => {
+export const handler: APIGatewayProxyHandler = async () => {
   const parameterName = process.env.PARAMETER_NAME_CHAPTER_NO!;
 
   const { data } = await axios.get(SITE_BASE_URL);
@@ -21,7 +21,12 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
 
   if (!match) {
     console.warn('Unable to match the text with the current cssSelector');
-    return;
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: 'Unable to match the text with the current cssSelector',
+      }),
+    };
   }
 
   // now the list might be shown but the chapter might still not be ready to see yet
@@ -29,24 +34,35 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
   const lastReadChapterNo = parseInt(await getSSMParameter(parameterName));
 
   if (lastReadChapterNo === observedLatestChapterNo) {
-    return;
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: `lastReadChapterNo was ${lastReadChapterNo}. Already up to date ✅`,
+      }),
+    };
   }
 
-  let nextChapter = lastReadChapterNo;
+  let nextReadyChapter = lastReadChapterNo;
+  console.log('nextReadyChapter: ', nextReadyChapter);
 
   do {
     // if the next chapter is not ready then don't bother looping
-    if (await isChapterNotReady(nextChapter + 1)) {
+    if (await isChapterNotReady(nextReadyChapter + 1)) {
       break;
     }
 
     // it must be ready to send a notification
-    await sendEmail(++nextChapter);
+    await sendEmail(++nextReadyChapter);
 
     // do something to update the current last known chapter no
-  } while (nextChapter !== observedLatestChapterNo);
+  } while (nextReadyChapter !== observedLatestChapterNo);
 
-  if (nextChapter !== lastReadChapterNo) {
-    await updateSSMParameter(parameterName, nextChapter.toString());
+  if (nextReadyChapter !== lastReadChapterNo) {
+    await updateSSMParameter(parameterName, nextReadyChapter.toString());
   }
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ lastReadChapterNo }),
+  };
 };
