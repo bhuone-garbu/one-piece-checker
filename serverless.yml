@@ -1,6 +1,6 @@
 service: one-piece-chapter-checker
 
-frameworkVersion: '2'
+frameworkVersion: '3'
 
 plugins:
   - serverless-dotenv-plugin

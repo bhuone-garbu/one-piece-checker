@@ -14,7 +14,7 @@ import { getSSMParameter } from './ssm-parameter';
  */
 export async function sendEmail(chapterNo: number) {
   const msg = {
-    to: process.env.TO_ADD!,
+    to: process.env.TO_ADD!.split(','),
     from: process.env.FROM_ADD!,
     templateId: process.env.SEND_GRID_TEMPLATE_ID!,
     dynamicTemplateData: {
@@ -22,5 +22,5 @@ export async function sendEmail(chapterNo: number) {
       buttonLink: `https://online-one-piece.com/manga/one-piece-chapter-${chapterNo}`,
     },
   };
-  await sgMail.send(msg);
+  await sgMail.sendMultiple(msg);
 }
